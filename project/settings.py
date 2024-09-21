@@ -54,6 +54,7 @@ LOGOUT_REDIRECT_URL = '/'
 
 INSTALLED_APPS = [
     'accounts',
+    'schedule',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
