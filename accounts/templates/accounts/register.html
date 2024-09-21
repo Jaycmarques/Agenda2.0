@@ -1,0 +1,106 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="form-wrapper mx-auto p-4 border rounded" style="max-width: 700px;">
+        <h2 class="text-center mb-4">Register</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <!-- Email Field -->
+            <div class="mb-3 row justify-content-center">
+                <label for="{{ form.email.id_for_label }}" class="col-sm-3 col-form-label text-start">Email</label>
+                <div class="col-sm-7">
+                    {{ form.email }}
+                    {% if form.email.help_text %}
+                    <div class="form-text text-start">{{ form.email.help_text }}</div>
+                    {% endif %}
+                    {% if form.email.errors %}
+                    <div class="invalid-feedback d-block text-start">
+                        {% for error in form.email.errors %}
+                        <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- First Name Field -->
+            <div class="mb-3 row justify-content-center">
+                <label for="{{ form.first_name.id_for_label }}"
+                    class="col-sm-3 col-form-label text-start">Username</label>
+                <div class="col-sm-7">
+                    {{ form.first_name }}
+                    {% if form.first_name.help_text %}
+                    <div class="form-text text-start">{{ form.first_name.help_text }}</div>
+                    {% endif %}
+                    {% if form.first_name.errors %}
+                    <div class="invalid-feedback d-block text-start">
+                        {% for error in form.first_name.errors %}
+                        <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Password1 Field -->
+            <div class="mb-3 row justify-content-center">
+                <label for="{{ form.password1.id_for_label }}"
+                    class="col-sm-3 col-form-label text-start">Password</label>
+                <div class="col-sm-7">
+                    <input type="password" name="password1" class="form-control" id="{{ form.password1.id_for_label }}">
+                    {% if form.password1.help_text %}
+                    <div class="form-text text-start">{{ form.password1.help_text }}</div>
+                    {% endif %}
+                    {% if form.password1.errors %}
+                    <div class="invalid-feedback d-block text-start">
+                        {% for error in form.password1.errors %}
+                        <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Password2 Field -->
+            <div class="mb-3 row justify-content-center">
+                <label for="{{ form.password2.id_for_label }}" class="col-sm-3 col-form-label text-start">Confirm
+                    Password</label>
+                <div class="col-sm-7">
+                    <input type="password" name="password2" class="form-control" id="{{ form.password2.id_for_label }}">
+                    {% if form.password2.help_text %}
+                    <div class="form-text text-start">{{ form.password2.help_text }}</div>
+                    {% endif %}
+                    {% if form.password2.errors %}
+                    <div class="invalid-feedback d-block text-start">
+                        {% for error in form.password2.errors %}
+                        <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Non-field errors -->
+            {% if form.non_field_errors %}
+            <div class="mb-3 row justify-content-center">
+                <div class="col-sm-7 offset-sm-3">
+                    <div class="alert alert-danger text-start">
+                        {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-center mt-4">
+                <button type="submit" class="btn btn-primary me-2">Register</button>
+                <button type="reset" class="btn btn-secondary">Reset</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,40 @@
+{% if page_obj %}
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                <a class="btn btn-outline-primary me-2" href="?page=1&q={{ request.GET.q|default:'' }}">&laquo;
+                    First</a>
+                <a class="btn btn-outline-primary me-2"
+                    href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q|default:'' }}">Previous</a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="btn btn-primary me-1">{{num}}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <a
+                    class="btn btn-outline-primary me-1" href="?page={{num}}&q={{request.GET.q|default:''}}">{{num}}</a>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <a class="btn btn-outline-primary ms-2"
+                        href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q|default:'' }}">Next</a>
+                    <a class="btn btn-outline-primary ms-2"
+                        href="?page={{ page_obj.paginator.num_pages }}&q={{ request.GET.q|default:'' }}">Last
+                        &raquo;</a>
+                    {% endif %}
+            </span>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center mt-3">
+        <form method="get" class="d-flex">
+            <input type="hidden" name="q" value="{{ request.GET.q|default:'' }}">
+            <input type="number" name="page" class="form-control" placeholder="Page Number" min="1"
+                max="{{ page_obj.paginator.num_pages }}">
+            <button type="submit" class="btn btn-primary ms-2">Go</button>
+        </form>
+    </div>
+</div>
+{% endif %}

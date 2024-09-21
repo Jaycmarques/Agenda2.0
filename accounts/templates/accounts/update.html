@@ -1,0 +1,32 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="form-wrapper mx-auto p-4 border rounded" style="max-width: 700px;">
+        <h2 class="text-center mb-7">Update Contact</h2>
+        <form action="{{ form_action }}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <div class="form-text">{{ field.help_text }}</div>
+                {% endif %}
+                {% if field.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in field.errors %}
+                    <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-primary" type="submit">Save</button>
+                <button class="btn btn-secondary" type="reset">Restore</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}
