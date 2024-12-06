@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'pytest_django',
+    'django_select2',
 ]
 
 MIDDLEWARE = [

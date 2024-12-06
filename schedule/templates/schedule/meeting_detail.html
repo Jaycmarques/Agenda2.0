@@ -1,0 +1,16 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">{{ meeting.title }}</h2>
+    <p><strong>Start:</strong> {{ meeting.start_time }}</p>
+    <p><strong>End:</strong> {{ meeting.end_time }}</p>
+    <p><strong>Invited Contacts:</strong></p>
+    <ul>
+        {% for contact in meeting.invited_contacts.all %}
+        <li>{{ contact.first_name }} {{ contact.last_name }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'calendar' %}" class="btn btn-secondary">Back to Calendar</a>
+</div>
+{% endblock %}
