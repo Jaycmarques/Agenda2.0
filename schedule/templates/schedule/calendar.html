@@ -15,16 +15,47 @@
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
 
+<!-- Modal for editing event -->
+<div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editEventModalLabel">Edit Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editEventForm">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Meeting Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="start_time" class="form-label">Start Date and Time</label>
+                        <input type="datetime-local" class="form-control" id="start_time" name="start_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="end_time" class="form-label">End Date and Time</label>
+                        <input type="datetime-local" class="form-control" id="end_time" name="end_time" required>
+                    </div>
+                    <input type="hidden" id="event-id">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Lista de reuniões passada pelo contexto
+        // Lista de eventos
         var meetings = [
             {% for meeting in meetings %}
             {
             id: {{ meeting.id }},
         title: "{{ meeting.title|escapejs }}",
         start: "{{ meeting.start_time }}",
-        end: "{{ meeting.end_time }}"
+        end: "{{ meeting.end_time }}",
+        color: "{{ meeting.color|default:'#007bff' }}" // Cor dos eventos
             }{% if not forloop.last %}, {% endif %}
     {% endfor %}
         ];
@@ -33,6 +64,7 @@
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
+        editable: true, // Permite arrastar e redimensionar
         events: meetings,
         headerToolbar: {
             left: 'prev,next today',
@@ -40,13 +72,94 @@
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         eventClick: function (info) {
-            // Redireciona para os detalhes do evento
-            window.location.href = `/events/${info.event.id}/`;
+            // Exibe o modal de edição ao clicar no evento
+            $('#event-id').val(info.event.id);
+            $('#title').val(info.event.title);
+            $('#start_time').val(info.event.start.toISOString().slice(0, 16)); // Formato de datetime-local
+            $('#end_time').val(info.event.end.toISOString().slice(0, 16)); // Formato de datetime-local
+            $('#editEventModal').modal('show'); // Exibe o modal de edição
+        },
+        eventDrop: function (info) {
+            // Chamado ao arrastar o evento para outra data/hora
+            updateEvent(info.event);
+        },
+        eventResize: function (info) {
+            // Chamado ao redimensionar o evento
+            updateEvent(info.event);
         }
     });
 
-    // Renderiza o calendário
     calendar.render();
+
+    // Função para enviar dados ao backend
+    function updateEvent(event) {
+        fetch(`/events/update-event/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                id: event.id,
+                start: event.start.toISOString(),
+                end: event.end ? event.end.toISOString() : null
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    alert('Error updating event');
+                    throw new Error('Failed to update event');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Event updated successfully');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Recarregar a página em caso de erro para evitar inconsistências
+                window.location.reload();
+            });
+    }
+
+    // Lidar com o envio do formulário de edição
+    $('#editEventForm').on('submit', function (e) {
+        e.preventDefault();
+
+        // Coletar os dados do evento editado
+        var eventData = {
+            id: $('#event-id').val(),
+            title: $('#title').val(),
+            start: $('#start_time').val(),
+            end: $('#end_time').val()
+        };
+
+        // Enviar os dados via AJAX para o servidor
+        fetch(`/events/update-event/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(eventData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    alert('Error saving event');
+                    throw new Error('Failed to save event');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Event updated successfully');
+                $('#editEventModal').modal('hide'); // Fechar o modal
+                calendar.refetchEvents(); // Atualiza os eventos no calendário
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
     });
 </script>
+
 {% endblock %}
